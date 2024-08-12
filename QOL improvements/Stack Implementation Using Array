@@ -1,0 +1,66 @@
+#include <iostream>
+#include <stdexcept>
+
+class Stack {
+private:
+    int* data;
+    int capacity;
+    int top;
+
+public:
+    Stack(int capacity) : capacity(capacity), top(-1) {
+        data = new int[capacity];
+    }
+
+    ~Stack() {
+        delete[] data;
+    }
+
+    void push(int value) {
+        if (top == capacity - 1) {
+            throw std::overflow_error("Stack overflow");
+        }
+        data[++top] = value;
+    }
+
+    void pop() {
+        if (top == -1) {
+            throw std::underflow_error("Stack underflow");
+        }
+        --top;
+    }
+
+    int peek() const {
+        if (top == -1) {
+            throw std::underflow_error("Stack is empty");
+        }
+        return data[top];
+    }
+
+    bool isEmpty() const {
+        return top == -1;
+    }
+
+    int getSize() const {
+        return top + 1;
+    }
+
+    int getCapacity() const {
+        return capacity;
+    }
+};
+
+int main() {
+    Stack stack(5);
+
+    stack.push(10);
+    stack.push(20);
+    stack.push(30);
+
+    std::cout << "Top element: " << stack.peek() << std::endl;
+
+    stack.pop();
+    std::cout << "Top element after pop: " << stack.peek() << std::endl;
+
+    return 0;
+}
