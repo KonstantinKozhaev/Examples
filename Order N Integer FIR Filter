@@ -1,0 +1,29 @@
+#include <iostream>
+#include <vector>
+#include <numeric>
+
+class FIRFilter {
+public:
+    FIRFilter(const std::vector<int>& coefficients) : coeffs(coefficients), buffer(coefficients.size(), 0) {}
+
+    int process(int input) {
+        buffer.insert(buffer.begin(), input);
+        buffer.pop_back();
+        return std::inner_product(buffer.begin(), buffer.end(), coeffs.begin(), 0);
+    }
+
+private:
+    std::vector<int> coeffs;
+    std::vector<int> buffer;
+};
+
+int main() {
+    std::vector<int> coefficients = {1, 2, 3, 4};
+    FIRFilter filter(coefficients);
+
+    std::vector<int> input = {1, 2, 3, 4, 5};
+    for (int val : input) {
+        std::cout << "Filtered value: " << filter.process(val) << std::endl;
+    }
+    return 0;
+}
