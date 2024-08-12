@@ -1,0 +1,58 @@
+#include <iostream>
+#include <vector>
+
+class RingAllocator {
+public:
+    RingAllocator(size_t size) : buffer(size), head(0), tail(0), full(false) {}
+
+    void* allocate(size_t size) {
+        if (size > buffer.size()) {
+            throw std::runtime_error("Allocation size exceeds buffer size");
+        }
+        if (freeSpace() < size) {
+            return nullptr;
+        }
+        void* ptr = &buffer[head];
+        head = (head + size) % buffer.size();
+        if (head == tail) {
+            full = true;
+        }
+        return ptr;
+    }
+
+    void deallocate() {
+        full = false;
+    }
+
+private:
+    std::vector<uint8_t> buffer;
+    size_t head;
+    size_t tail;
+    bool full;
+
+    size_t freeSpace() const {
+        if (full) {
+            return 0;
+        }
+        if (head >= tail) {
+            return buffer.size() - head + tail;
+        }
+        return tail - head;
+    }
+};
+
+int main() {
+    RingAllocator allocator(10);
+    void* p1 = allocator.allocate(5);
+    std::cout << "Allocated 5 bytes at " << p1 << "\n";
+    void* p2 = allocator.allocate(5);
+    if (p2 == nullptr) {
+        std::cout << "Failed to allocate 5 bytes\n";
+    } else {
+        std::cout << "Allocated 5 bytes at " << p2 << "\n";
+    }
+    allocator.deallocate();
+    p2 = allocator.allocate(5);
+    std::cout << "Allocated 5 bytes at " << p2 << "\n";
+    return 0;
+}
