@@ -1,0 +1,18 @@
+#include <iostream>
+#include <string>
+
+struct TaskControlBlock {
+    int id;
+    std::string name;
+    int priority;
+
+    void execute() {
+        std::cout << "Executing task " << name << " with priority " << priority << std::endl;
+    }
+};
+
+int main() {
+    TaskControlBlock tcb = {1, "ExampleTask", 5};
+    tcb.execute();
+    return 0;
+}
