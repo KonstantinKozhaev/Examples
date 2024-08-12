@@ -1,0 +1,48 @@
+#include <iostream>
+#include <queue>
+#include <functional>
+#include <thread>
+#include <chrono>
+
+class TaskScheduler {
+public:
+    using Task = std::function<void()>;
+
+    void schedule(Task task, int delay_ms) {
+        auto time = std::chrono::steady_clock::now() + std::chrono::milliseconds(delay_ms);
+        tasks.push({time, task});
+    }
+
+    void run() {
+        while (!tasks.empty()) {
+            auto task = tasks.top();
+            auto now = std::chrono::steady_clock::now();
+            if (now >= task.time) {
+                task.task();
+                tasks.pop();
+            } else {
+                std::this_thread::sleep_for(task.time - now);
+            }
+        }
+    }
+
+private:
+    struct ScheduledTask {
+        std::chrono::steady_clock::time_point time;
+        Task task;
+
+        bool operator<(const ScheduledTask& other) const {
+            return time > other.time;
+        }
+    };
+
+    std::priority_queue<ScheduledTask> tasks;
+};
+
+int main() {
+    TaskScheduler scheduler;
+    scheduler.schedule([] { std::cout << "Task 1\n"; }, 1000);
+    scheduler.schedule([] { std::cout << "Task 2\n"; }, 500);
+    scheduler.run();
+    return 0;
+}
