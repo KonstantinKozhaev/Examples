@@ -1,0 +1,55 @@
+#include <iostream>
+#include <vector>
+
+template <typename T>
+class CircularBuffer {
+public:
+    CircularBuffer(size_t size) : buffer(size), head(0), tail(0), full(false) {}
+
+    void put(T item) {
+        buffer[head] = item;
+        if (full) {
+            tail = (tail + 1) % buffer.size();
+        }
+        head = (head + 1) % buffer.size();
+        full = head == tail;
+    }
+
+    T get() {
+        if (isEmpty()) {
+            throw std::runtime_error("Buffer is empty");
+        }
+        T val = buffer[tail];
+        full = false;
+        tail = (tail + 1) % buffer.size();
+        return val;
+    }
+
+    bool isEmpty() const {
+        return (!full && (head == tail));
+    }
+
+    bool isFull() const {
+        return full;
+    }
+
+private:
+    std::vector<T> buffer;
+    size_t head;
+    size_t tail;
+    bool full;
+};
+
+int main() {
+    CircularBuffer<int> cb(5);
+    cb.put(1);
+    cb.put(2);
+    cb.put(3);
+    std::cout << "Get: " << cb.get() << "\n";
+    std::cout << "Get: " << cb.get() << "\n";
+    cb.put(4);
+    cb.put(5);
+    cb.put(6);
+    std::cout << "Get: " << cb.get() << "\n";
+    return 0;
+}
