@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <cmath>
 
 double integerPow(double base, int exp) {
     if (exp == 0) {
@@ -55,8 +56,8 @@ double powFraction(double a, double exp) {
 
     // Calculate the fractional part if it exists
     if (fractionalPart != 0) {
-        // Convert the fractional part into numerator/denominator
-        int numerator = static_cast<int>(fractionalPart * 10000); // Scale for precision
+        // Convert the fractional part into numerator and denominator
+        int numerator = static_cast<int>(fractionalPart * 10000 + 0.5); // Scale for precision
         int denominator = 10000; // Scale factor
 
         // Calculate the c-th root
@@ -89,13 +90,14 @@ int main() {
 
     std::cout << "Enter the base value: ";
     std::cin >> base;
-  
+
     std::cout << "Enter the exponent as a fraction (e.g., 3/4): ";
     std::cin >> exponent;
 
     try {
         double fractionalExponent = parseFraction(exponent);
         double result = powFraction(base, fractionalExponent);
+        std::cout.precision(10); // Set precision for output
         std::cout << base << "^(" << exponent << ") = " << result << std::endl;
     } catch (const std::invalid_argument& e) {
         std::cerr << "Error: " << e.what() << std::endl;
