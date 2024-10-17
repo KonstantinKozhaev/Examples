@@ -32,7 +32,7 @@ double root(double value, int root) {
     double mid;
 
     // Use binary search to find the nth root
-    for (int i = 0; i < 1000; ++i) { // Increase iterations for more precision
+    for (int i = 0; i < 10000; ++i) { // Increase iterations for more precision
         mid = (low + high) / 2;
         double midPow = integerPow(mid, root);
         
@@ -46,27 +46,11 @@ double root(double value, int root) {
     return mid; // This is the approximate nth root of value
 }
 
-double powFraction(double a, double exp) {
-    // Separate the integer and fractional parts
-    int integerPart = static_cast<int>(exp);
-    double fractionalPart = exp - integerPart;
-
-    // Calculate a^integerPart
-    double result = integerPow(a, integerPart);
-
-    // Calculate the fractional part if it exists
-    if (fractionalPart != 0) {
-        // Convert the fractional part into numerator and denominator
-        int numerator = static_cast<int>(fractionalPart * 10000 + 0.5); // Scale for precision
-        int denominator = 10000; // Scale factor
-
-        // Calculate the c-th root
-        double rootValue = root(result, denominator);
-        
-        // Raise the root to the power of the numerator
-        result *= integerPow(rootValue, numerator);
-    }
-
+double powFraction(double a, int numerator, int denominator) {
+    // Calculate a^numerator
+    double power = integerPow(a, numerator);
+    // Calculate the c-th root (denominator)
+    double result = root(power, denominator);
     return result;
 }
 
@@ -80,8 +64,8 @@ double parseFraction(const std::string& fraction) {
         throw std::invalid_argument("Invalid fraction format.");
     }
 
-    // Return the fractional value
-    return static_cast<double>(numerator) / denominator;
+    // Return the numerator and denominator
+    return {numerator, denominator};
 }
 
 int main() {
@@ -95,8 +79,11 @@ int main() {
     std::cin >> exponent;
 
     try {
-        double fractionalExponent = parseFraction(exponent);
-        double result = powFraction(base, fractionalExponent);
+        // Parse the fraction
+        int numerator, denominator;
+        std::tie(numerator, denominator) = parseFraction(exponent);
+        // Calculate the result
+        double result = powFraction(base, numerator, denominator);
         std::cout.precision(10); // Set precision for output
         std::cout << base << "^(" << exponent << ") = " << result << std::endl;
     } catch (const std::invalid_argument& e) {
